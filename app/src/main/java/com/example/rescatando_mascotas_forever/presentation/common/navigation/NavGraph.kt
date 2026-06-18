@@ -1,0 +1,184 @@
+package com.example.rescatando_mascotas_forever.presentation.common.navigation
+
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
+import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavType
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
+import com.example.rescatando_mascotas_forever.presentation.auth.login.LoginScreen
+import com.example.rescatando_mascotas_forever.presentation.auth.register.RegisterScreen
+import com.example.rescatando_mascotas_forever.presentation.home.HomeScreen
+import com.example.rescatando_mascotas_forever.presentation.adopciones.AdopcionListScreen
+import com.example.rescatando_mascotas_forever.presentation.rescates.RescateScreen
+import com.example.rescatando_mascotas_forever.presentation.nosotros.NosotrosScreen
+import com.example.rescatando_mascotas_forever.presentation.rescates.RegistroRescatistaScreen
+import com.example.rescatando_mascotas_forever.presentation.rescates.FormularioRescateScreen
+import com.example.rescatando_mascotas_forever.presentation.adopciones.FormularioAdopcionScreen
+import com.example.rescatando_mascotas_forever.presentation.eventos.EventoScreen
+import com.example.rescatando_mascotas_forever.presentation.eventos.EventoDetalleScreen
+import com.example.rescatando_mascotas_forever.presentation.eventos.EventoViewModel
+import com.example.rescatando_mascotas_forever.presentation.rescatistas.RescatistaContactosScreen
+import com.example.rescatando_mascotas_forever.presentation.rescates.EncuestaRescateScreen
+import com.example.rescatando_mascotas_forever.presentation.adopciones.ProcesoAdopcionScreen
+import com.example.rescatando_mascotas_forever.presentation.splash.SplashScreen
+import com.example.rescatando_mascotas_forever.presentation.rescates.profile.ProfileScreen
+import com.example.rescatando_mascotas_forever.presentation.settings.SettingsScreen
+import com.example.rescatando_mascotas_forever.presentation.admin.AdminHomeScreen
+import com.example.rescatando_mascotas_forever.presentation.admin.AdminFormularioAdopcionScreen
+import com.example.rescatando_mascotas_forever.presentation.admin.AdminMascotasScreen
+import com.example.rescatando_mascotas_forever.presentation.admin.AdminEventosScreen
+import com.example.rescatando_mascotas_forever.presentation.admin.AdminDonacionesScreen
+import com.example.rescatando_mascotas_forever.presentation.admin.AdminUsuariosScreen
+import com.example.rescatando_mascotas_forever.presentation.admin.AdminReportesRescateScreen
+import com.example.rescatando_mascotas_forever.presentation.admin.AdminSuscripcionesScreen
+import com.example.rescatando_mascotas_forever.presentation.donaciones.DonacionesScreen
+import com.example.rescatando_mascotas_forever.presentation.veterinarias.VeterinariaScreen
+import com.example.rescatando_mascotas_forever.presentation.home.FoundationDetailScreen
+import com.example.rescatando_mascotas_forever.presentation.home.FoundationListScreen
+import com.example.rescatando_mascotas_forever.presentation.suscripciones.SubscriptionScreen
+import com.example.rescatando_mascotas_forever.presentation.suscripciones.SuscripcionFormScreen
+
+@Composable
+fun AppNavigation() {
+    val navController = rememberNavController()
+
+    NavHost(
+        navController = navController,
+        startDestination = "splash"
+    ) {
+        composable("splash") {
+            SplashScreen(navController = navController)
+        }
+        composable("login") {
+            LoginScreen(navController = navController)
+        }
+        composable("register") {
+            RegisterScreen(navController = navController)
+        }
+        composable("home") {
+            HomeScreen(navController = navController)
+        }
+        composable("admin_home") {
+            AdminHomeScreen(navController = navController)
+        }
+
+        // --- RUTA LISTA DE FUNDACIONES ---
+        composable("fundaciones") {
+            FoundationListScreen(navController = navController)
+        }
+
+        // --- RUTA DETALLE FUNDACIÓN ---
+        composable(
+            route = "foundation_detail/{foundationName}",
+            arguments = listOf(navArgument("foundationName") { type = NavType.StringType })
+        ) { backStackEntry ->
+            val name = backStackEntry.arguments?.getString("foundationName") ?: ""
+            FoundationDetailScreen(foundationName = name, navController = navController)
+        }
+
+        // RUTAS PÚBLICAS
+        composable("adopciones") {
+            AdopcionListScreen(navController = navController)
+        }
+        composable("ultimos_rescates") {
+            RescateScreen(navController = navController)
+        }
+        composable("registro_rescatista") {
+            RegistroRescatistaScreen(navController = navController)
+        }
+        composable("formulario_rescate") {
+            FormularioRescateScreen(navController = navController)
+        }
+        composable("formulario_adopcion") {
+            FormularioAdopcionScreen(navController = navController)
+        }
+        composable("donaciones") {
+            DonacionesScreen(navController = navController)
+        }
+        composable("suscripciones") {
+            SubscriptionScreen(navController = navController)
+        }
+        composable(
+            route = "suscripcion_form/{mascotaId}",
+            arguments = listOf(navArgument("mascotaId") { type = NavType.IntType })
+        ) { backStackEntry ->
+            val mascotaId = backStackEntry.arguments?.getInt("mascotaId")
+            SuscripcionFormScreen(navController = navController, mascotaId = mascotaId)
+        }
+
+        // --- BLOQUE EVENTOS ---
+        composable("eventos") { backStackEntry ->
+            val viewModel: EventoViewModel = viewModel(backStackEntry)
+            EventoScreen(navController = navController, viewModel = viewModel)
+        }
+        
+        composable(
+            route = "eventos/{eventoId}",
+            arguments = listOf(navArgument("eventoId") { type = NavType.IntType })
+        ) { backStackEntry ->
+            val eventoId = backStackEntry.arguments?.getInt("eventoId") ?: 0
+            val parentEntry = remember(backStackEntry) {
+                navController.getBackStackEntry("eventos")
+            }
+            val viewModel: EventoViewModel = viewModel(parentEntry)
+            EventoDetalleScreen(navController = navController, eventoId = eventoId, viewModel = viewModel)
+        }
+
+        composable("rescatista_contactos") {
+            RescatistaContactosScreen(navController = navController)
+        }
+        composable("encuesta_rescate") {
+            EncuestaRescateScreen(navController = navController)
+        }
+        composable("nosotros") {
+            NosotrosScreen(navController = navController)
+        }
+        composable("perfil") {
+            ProfileScreen(navController = navController)
+        }
+        composable("configuracion") {
+            SettingsScreen(navController = navController)
+        }
+        composable("veterinarias") {
+            VeterinariaScreen(navController = navController)
+        }
+        composable("proceso_adopcion") {
+            ProcesoAdopcionScreen(navController = navController)
+        }
+
+        // RUTAS EXCLUSIVAS ADMIN
+        composable("admin_registro_rescatista") {
+            RegistroRescatistaScreen(navController = navController)
+        }
+        composable("admin_encuesta_rescate") {
+            EncuestaRescateScreen(navController = navController)
+        }
+        composable("admin_formulario_rescate") {
+            FormularioRescateScreen(navController = navController)
+        }
+        composable("admin_formulario_adopcion") {
+            AdminFormularioAdopcionScreen(navController = navController)
+        }
+        composable("admin_mascotas") {
+            AdminMascotasScreen(navController = navController)
+        }
+        composable("admin_eventos") {
+            AdminEventosScreen(navController = navController)
+        }
+        composable("admin_donaciones") {
+            AdminDonacionesScreen(navController = navController)
+        }
+        composable("admin_usuarios") {
+            AdminUsuariosScreen(navController = navController)
+        }
+        composable("admin_reportes_rescate") {
+            AdminReportesRescateScreen(navController = navController)
+        }
+        composable("admin_suscripciones") {
+            AdminSuscripcionesScreen(navController = navController)
+        }
+    }
+}

@@ -1,0 +1,39 @@
+package com.example.rescatando_mascotas_forever.data.network.api
+
+import com.example.rescatando_mascotas_forever.utils.Constants
+import okhttp3.OkHttpClient
+import okhttp3.logging.HttpLoggingInterceptor
+import retrofit2.Retrofit
+import retrofit2.converter.gson.GsonConverterFactory
+import java.util.concurrent.TimeUnit
+
+object RetrofitClient {
+
+    private val BASE_URL = Constants.BASE_URL
+
+    private val loggingInterceptor = HttpLoggingInterceptor().apply {
+        level = HttpLoggingInterceptor.Level.BODY
+    }
+
+    private val client = OkHttpClient.Builder()
+        .addInterceptor(loggingInterceptor)
+        .connectTimeout(30, TimeUnit.SECONDS)
+        .readTimeout(30, TimeUnit.SECONDS)
+        .writeTimeout(30, TimeUnit.SECONDS)
+        .build()
+
+    private val retrofit = Retrofit.Builder()
+        .baseUrl(BASE_URL)
+        .client(client)
+        .addConverterFactory(GsonConverterFactory.create())
+        .build()
+
+    fun <T> createService(serviceClass: Class<T>): T {
+        return retrofit.create(serviceClass)
+    }
+
+    val mascotaApi: MascotaApi by lazy { createService(MascotaApi::class.java) }
+    val authApi: AuthApi by lazy { createService(AuthApi::class.java) }
+    val eventoApi: EventoApi by lazy { createService(EventoApi::class.java) }
+    val veterinariaApi: VeterinariaApi by lazy { createService(VeterinariaApi::class.java) }
+}
