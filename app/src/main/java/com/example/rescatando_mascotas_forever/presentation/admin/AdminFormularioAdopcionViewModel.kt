@@ -6,6 +6,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.rescatando_mascotas_forever.data.network.models.SolicitudAdopcionRequest
 import com.example.rescatando_mascotas_forever.domain.usecases.adopcion.SolicitarAdopcionUseCase
 import kotlinx.coroutines.launch
 
@@ -16,6 +17,9 @@ class AdminFormularioAdopcionViewModel(
     var currentPage by mutableIntStateOf(1)
     val totalPages = 5
 
+    // ID de la mascota (debe asignarse al abrir el formulario)
+    var mascotaId by mutableIntStateOf(0)
+
     // Step 1
     var nombre by mutableStateOf("")
     var dni by mutableStateOf("")
@@ -24,6 +28,7 @@ class AdminFormularioAdopcionViewModel(
     // Step 2
     var ocupacion by mutableStateOf("")
     var telefono by mutableStateOf("")
+    var direccion by mutableStateOf("") // Añadido campo dirección
 
     // Step 3
     var tipoVivienda by mutableStateOf("Casa")
@@ -39,9 +44,11 @@ class AdminFormularioAdopcionViewModel(
     var tieneOtrasMascotas by mutableStateOf(false)
     var experienciaPrevia by mutableStateOf("")
     var tiempoDiario by mutableStateOf("")
+    var motivo by mutableStateOf("Adopción desde panel administrador")
     var presupuestoVeterinario by mutableStateOf(true)
 
     var isSaving by mutableStateOf(false)
+    var errorMessage by mutableStateOf<String?>(null)
     var saveSuccess by mutableStateOf(false)
 
     fun isStepValid(step: Int): Boolean {
@@ -68,20 +75,42 @@ class AdminFormularioAdopcionViewModel(
     }
 
     fun guardarSolicitud(onSuccess: () -> Unit) {
-        if (!isStepValid(currentPage)) return
+        if (!isStepValid(5)) return
 
         viewModelScope.launch {
             isSaving = true
-            // Aquí se llamaría al use case con todos los datos
-            // val solicitud = SolicitudAdopcion(...)
-            // solicitarAdopcionUseCase(solicitud)
-            
-            // Simulamos una carga
-            kotlinx.coroutines.delay(1500)
-            
-            isSaving = false
-            saveSuccess = true
-            onSuccess()
+            errorMessage = null
+            try {
+                val request = SolicitudAdopcionRequest(
+                    mascotaId = mascotaId,
+                    nombreCompleto = nombre,
+                    dni = dni,
+                    edad = edad.toIntOrNull() ?: 0,
+                    ocupacion = ocupacion,
+                    direccion = direccion.ifBlank { "Dirección Admin" },
+                    telefono = telefono,
+                    tipoVivienda = tipoVivienda,
+                    tienePatio = tienePatio,
+                    integrantes = integrantes.toIntOrNull() ?: 1,
+                    tieneOtrasMascotas = tieneOtrasMascotas,
+                    motivo = motivo,
+                    tiempoDisponible = tiempoDiario,
+                    experienciaPrevia = experienciaPrevia
+                )
+
+                val result = solicitarAdopcionUseCase(request)
+                
+                if (result.success) {
+                    saveSuccess = true
+                    onSuccess()
+                } else {
+                    errorMessage = result.message ?: "Error al guardar la solicitud"
+                }
+            } catch (e: Exception) {
+                errorMessage = "Error: ${e.localizedMessage}"
+            } finally {
+                isSaving = false
+            }
         }
     }
 }

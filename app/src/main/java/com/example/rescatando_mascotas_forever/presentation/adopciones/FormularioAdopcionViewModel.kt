@@ -6,7 +6,8 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import kotlinx.coroutines.delay
+import com.example.rescatando_mascotas_forever.data.network.api.RetrofitClient
+import com.example.rescatando_mascotas_forever.data.network.models.SolicitudAdopcionRequest
 import kotlinx.coroutines.launch
 
 class FormularioAdopcionViewModel : ViewModel() {
@@ -14,21 +15,25 @@ class FormularioAdopcionViewModel : ViewModel() {
     var currentPage by mutableIntStateOf(1)
     val totalPages = 3
 
-    // Step 1: Información Personal
+    // ID de la mascota a adoptar
+    var mascotaId by mutableIntStateOf(0)
+
+    // Paso 1: Información Personal
     var nombreCompleto by mutableStateOf("")
     var edad by mutableStateOf("")
     var direccion by mutableStateOf("")
     var telefono by mutableStateOf("")
 
-    // Step 2: Entorno y Motivo
+    // Paso 2: Entorno y Motivo
     var tieneOtrasMascotas by mutableStateOf(false)
     var motivo by mutableStateOf("")
     var tiempoDisponible by mutableStateOf("")
 
-    // Step 3: Compromiso
+    // Paso 3: Compromiso
     var aceptaTerminos by mutableStateOf(false)
 
     var isSaving by mutableStateOf(false)
+    var errorMessage by mutableStateOf<String?>(null)
     var saveSuccess by mutableStateOf(false)
 
     fun isStepValid(step: Int): Boolean {
@@ -53,13 +58,36 @@ class FormularioAdopcionViewModel : ViewModel() {
     }
 
     fun enviarSolicitud(onSuccess: () -> Unit) {
+        if (!isStepValid(3)) return
+
         viewModelScope.launch {
             isSaving = true
-            // Simulación de envío
-            delay(2000)
-            isSaving = false
-            saveSuccess = true
-            onSuccess()
+            errorMessage = null
+            try {
+                val request = SolicitudAdopcionRequest(
+                    mascotaId = mascotaId,
+                    nombreCompleto = nombreCompleto,
+                    edad = edad.toIntOrNull() ?: 0,
+                    direccion = direccion,
+                    telefono = telefono,
+                    tieneOtrasMascotas = tieneOtrasMascotas,
+                    motivo = motivo,
+                    tiempoDisponible = tiempoDisponible
+                )
+
+                val response = RetrofitClient.adopcionApi.enviarSolicitud(request)
+                
+                if (response.success) {
+                    saveSuccess = true
+                    onSuccess()
+                } else {
+                    errorMessage = response.message ?: "Error al enviar la solicitud"
+                }
+            } catch (e: Exception) {
+                errorMessage = "Error de conexión: ${e.localizedMessage}"
+            } finally {
+                isSaving = false
+            }
         }
     }
 }

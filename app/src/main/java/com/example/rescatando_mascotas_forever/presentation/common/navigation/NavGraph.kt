@@ -92,9 +92,16 @@ fun AppNavigation() {
         composable("formulario_rescate") {
             FormularioRescateScreen(navController = navController)
         }
-        composable("formulario_adopcion") {
-            FormularioAdopcionScreen(navController = navController)
+        
+        // ACTUALIZADO: Ahora recibe el ID de la mascota
+        composable(
+            route = "formulario_adopcion/{mascotaId}",
+            arguments = listOf(navArgument("mascotaId") { type = NavType.IntType })
+        ) { backStackEntry ->
+            val mascotaId = backStackEntry.arguments?.getInt("mascotaId") ?: 0
+            FormularioAdopcionScreen(navController = navController, mascotaId = mascotaId)
         }
+
         composable("donaciones") {
             DonacionesScreen(navController = navController)
         }

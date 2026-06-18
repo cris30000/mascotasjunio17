@@ -9,7 +9,7 @@ import java.util.concurrent.TimeUnit
 
 object RetrofitClient {
 
-    private val BASE_URL = Constants.BASE_URL
+    const val BASE_URL = "https://rescatando-mascotas-backend-final-production.up.railway.app/"
 
     private val loggingInterceptor = HttpLoggingInterceptor().apply {
         level = HttpLoggingInterceptor.Level.BODY
@@ -36,4 +36,6 @@ object RetrofitClient {
     val authApi: AuthApi by lazy { createService(AuthApi::class.java) }
     val eventoApi: EventoApi by lazy { createService(EventoApi::class.java) }
     val veterinariaApi: VeterinariaApi by lazy { createService(VeterinariaApi::class.java) }
+    
+    val adopcionApi: AdopcionApi by lazy { createService(AdopcionApi::class.java) }
 }

@@ -194,7 +194,7 @@ fun AdopcionListScreen(
                         Spacer(Modifier.height(24.dp))
                         
                         Button(
-                            onClick = { navController.navigate("formulario_adopcion") },
+                            onClick = { navController.navigate("formulario_adopcion/0") },
                             modifier = Modifier.fillMaxWidth().height(56.dp),
                             colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF2E1A7A)),
                             shape = RoundedCornerShape(16.dp)
@@ -268,16 +268,36 @@ fun ModernPetCard(mascota: Mascota, navController: NavHostController, modifier: 
                 
                 Spacer(modifier = Modifier.height(12.dp))
                 
-                Button(
-                    onClick = { navController.navigate("suscripcion_form/${mascota.id}") },
-                    modifier = Modifier.fillMaxWidth().height(36.dp),
-                    shape = RoundedCornerShape(10.dp),
-                    contentPadding = PaddingValues(0.dp),
-                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF673AB7))
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
-                    Icon(Icons.Default.Favorite, null, modifier = Modifier.size(14.dp), tint = Color.White)
-                    Spacer(Modifier.width(4.dp))
-                    Text("Apadrinar", fontSize = 12.sp, fontWeight = FontWeight.Bold)
+                    // BOTÓN PRINCIPAL: AHORA LLAMA A LA RUTA DE ADOPCIÓN CORRECTA
+                    Button(
+                        onClick = { navController.navigate("formulario_adopcion/${mascota.id}") },
+                        modifier = Modifier.weight(1f).height(36.dp),
+                        shape = RoundedCornerShape(10.dp),
+                        contentPadding = PaddingValues(0.dp),
+                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF2E1A7A))
+                    ) {
+                        Text("Adoptar", fontSize = 11.sp, fontWeight = FontWeight.Bold, color = Color.White)
+                    }
+                    
+                    // ICONO DE CORAZÓN: PARA APADRINAR / SUSCRIPCIÓN
+                    IconButton(
+                        onClick = { navController.navigate("suscripcion_form/${mascota.id}") },
+                        modifier = Modifier
+                            .size(36.dp)
+                            .clip(RoundedCornerShape(10.dp))
+                            .background(Color(0xFF673AB7).copy(alpha = 0.1f))
+                    ) {
+                        Icon(
+                            Icons.Default.Favorite, 
+                            null, 
+                            modifier = Modifier.size(18.dp), 
+                            tint = Color(0xFF673AB7)
+                        )
+                    }
                 }
             }
         }

@@ -32,10 +32,16 @@ import com.example.rescatando_mascotas_forever.presentation.common.components.Ma
 @Composable
 fun FormularioAdopcionScreen(
     navController: NavHostController,
+    mascotaId: Int, // Recibimos el ID de la mascota desde el NavGraph
     viewModel: FormularioAdopcionViewModel = viewModel()
 ) {
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
+
+    // Sincronizamos el ID de la mascota con el ViewModel al entrar a la pantalla
+    LaunchedEffect(mascotaId) {
+        viewModel.mascotaId = mascotaId
+    }
 
     AppDrawer(navController = navController, drawerState = drawerState, scope = scope) {
         Scaffold(
@@ -95,6 +101,16 @@ fun FormularioAdopcionScreen(
 
                             Spacer(modifier = Modifier.height(32.dp))
 
+                            // Mostrar error si existe
+                            if (viewModel.errorMessage != null) {
+                                Text(
+                                    text = viewModel.errorMessage!!,
+                                    color = Color.Red,
+                                    fontSize = 12.sp,
+                                    modifier = Modifier.padding(bottom = 8.dp)
+                                )
+                            }
+
                             // Botones de Navegación
                             Row(
                                 modifier = Modifier.fillMaxWidth(),
@@ -123,7 +139,7 @@ fun FormularioAdopcionScreen(
                                     modifier = Modifier.weight(2f).height(56.dp),
                                     enabled = viewModel.isStepValid(viewModel.currentPage) && !viewModel.isSaving,
                                     shape = RoundedCornerShape(16.dp),
-                                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF673AB7))
+                                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF2E1A7A))
                                 ) {
                                     if (viewModel.isSaving) {
                                         CircularProgressIndicator(color = Color.White, modifier = Modifier.size(24.dp))
@@ -154,7 +170,7 @@ fun FormHeader(currentPage: Int, totalPages: Int) {
             .fillMaxWidth()
             .background(
                 Brush.verticalGradient(
-                    colors = listOf(Color(0xFF673AB7), Color(0xFF9575CD))
+                    colors = listOf(Color(0xFF2E1A7A), Color(0xFF5E49BF))
                 )
             )
             .padding(top = 24.dp, bottom = 54.dp, start = 24.dp, end = 24.dp)
@@ -256,10 +272,10 @@ fun StepTitle(icon: ImageVector, title: String, subtitle: String) {
     Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.padding(bottom = 24.dp)) {
         Surface(
             shape = CircleShape,
-            color = Color(0xFF673AB7).copy(alpha = 0.1f),
+            color = Color(0xFF2E1A7A).copy(alpha = 0.1f),
             modifier = Modifier.size(48.dp)
         ) {
-            Icon(icon, null, tint = Color(0xFF673AB7), modifier = Modifier.padding(12.dp))
+            Icon(icon, null, tint = Color(0xFF2E1A7A), modifier = Modifier.padding(12.dp))
         }
         Spacer(Modifier.width(16.dp))
         Column {
@@ -275,13 +291,13 @@ fun ModernInputField(value: String, onValueChange: (String) -> Unit, label: Stri
         value = value,
         onValueChange = onValueChange,
         label = { Text(label) },
-        leadingIcon = { Icon(icon, null, tint = Color(0xFF673AB7)) },
+        leadingIcon = { Icon(icon, null, tint = Color(0xFF2E1A7A)) },
         modifier = Modifier.fillMaxWidth().padding(bottom = 16.dp),
         shape = RoundedCornerShape(16.dp),
         singleLine = true,
         colors = OutlinedTextFieldDefaults.colors(
-            focusedBorderColor = Color(0xFF673AB7),
-            focusedLabelColor = Color(0xFF673AB7)
+            focusedBorderColor = Color(0xFF2E1A7A),
+            focusedLabelColor = Color(0xFF2E1A7A)
         )
     )
 }
